@@ -11,42 +11,82 @@ schemes:
   # tip: remove http to make production-grade
   - http
   - https
+
 # format of bodies a client can send (Content-Type)
 consumes:
   - application/json
 # format of the responses to the client (Accepts)
 produces:
   - application/json
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - Bearer: []
+
 paths:
+  
 
-
-  /services/categories:
-    # binds a127 app logic to a route
+  /login:
     x-swagger-router-controller: services
-    get:
-      description: Returns a list of all active services
-      # used as the method name of the controller
-      operationId: servicesCategories
+    post:
+      description: Login user to access protected api endpoints
+      operationId: loginUser
+      security: [] #removes bearer security from endpoint
+      parameters:
+        - in: body
+          name: credentials
+          description: User's login email address and password.
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+              password:
+                type: string
       responses:
         "200":
           description: Success
           schema:
-            # a pointer to a definition
             $ref: "#/definitions/GenericSuccessResponse"
-        # responses may fall through to errors
         default:
           description: Error
           schema:
             $ref: "#/definitions/GenericErrorResponse"
-            
-            
+    # post: // insert
+    # patch: // update
+    # delete: // delete
+
+
+
+  /services/categories:
+    x-swagger-router-controller: services
+    get:
+      description: Returns a list of all active services
+      operationId: getServiceCategories
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+    # post: // insert
+    # patch: // update
+    # delete: // delete
   /services/categories/{id}:
-    # binds a127 app logic to a route
     x-swagger-router-controller: services
     get:
       description: Returns a service category by id
-      # used as the method name of the controller
-      operationId: servicesCategoriesById
+      operationId: getServiceCategory
       parameters:
         - in: path
           name: id
@@ -57,16 +97,141 @@ paths:
         "200":
           description: Success
           schema:
-            # a pointer to a definition
             $ref: "#/definitions/GenericSuccessResponse"
-        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+  /services/categories/{id}/templates:
+    x-swagger-router-controller: services
+    get:
+      description: Returns templates of a specific service category
+      operationId: getServiceCategoryTemplates
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the service category.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+  /services/categories/{id}/services:
+    x-swagger-router-controller: services
+    get:
+      description: Returns services of a specific service category
+      operationId: getServiceCategoryServices
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the service category.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"            
+  /services/templates:
+    x-swagger-router-controller: services
+    get:
+      description: Returns all services templates
+      operationId: getServiceTemplates
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+  /services/templates/{id}:
+    x-swagger-router-controller: services
+    get:
+      description: Returns specific service template
+      operationId: getServiceTemplate
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the service template.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+  /services/templates/{id}/services:
+    x-swagger-router-controller: services
+    get:
+      description: Returns a list of services of a specific service template
+      operationId: getServiceTemplateServices
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the service template.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+  /services:
+    x-swagger-router-controller: services
+    get:
+      description: Returns a list of all services
+      operationId: getServices
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+  /services/{id}:
+    x-swagger-router-controller: services
+    get:
+      description: Returns a sepcific service
+      operationId: getService
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the service.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
         default:
           description: Error
           schema:
             $ref: "#/definitions/GenericErrorResponse"
   /swagger:
     x-swagger-pipe: swagger_raw
-# complex objects have schema definitions
 definitions:
   GenericSuccessResponse:
     required:
