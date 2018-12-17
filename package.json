@@ -9,9 +9,11 @@
   "main": "app.js",
   "dependencies": {
     "express": "^4.12.3",
+    "jsonwebtoken": "^8.4.0",
     "mysql": "^2.16.0",
     "queryize": "^2.1.0",
-    "swagger-express-mw": "^0.7.0"
+    "swagger-express-mw": "^0.7.0",
+    "swagger-tools": "^0.10.4"
   },
   "devDependencies": {
     "should": "^7.1.0",

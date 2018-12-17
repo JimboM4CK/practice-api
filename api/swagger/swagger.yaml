@@ -31,7 +31,7 @@ paths:
   
 
   /login:
-    x-swagger-router-controller: services
+    x-swagger-router-controller: login
     post:
       description: Login user to access protected api endpoints
       operationId: loginUser
