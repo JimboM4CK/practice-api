@@ -1,9 +1,9 @@
 module.exports = {
   db_settings: {
     connectionLimit: 50,
-    host     : 'localhost',
+    host     : 'jmdb.cwcxibundeox.ap-southeast-2.rds.amazonaws.com',
     user     : 'root',
-    password : 'pigpen',
+    password : 'JKaws123!',
     database : 'practice'
   },
   db_prefix: 'practice_',
