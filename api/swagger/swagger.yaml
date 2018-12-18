@@ -31,10 +31,10 @@ paths:
   
 
   /login:
-    x-swagger-router-controller: login
+    x-swagger-router-controller: staff
     post:
       description: Login user to access protected api endpoints
-      operationId: loginUser
+      operationId: staffLogin
       security: [] #removes bearer security from endpoint
       parameters:
         - in: body
