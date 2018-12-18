@@ -6,7 +6,10 @@ var auth = require('./api/helpers/auth');
 module.exports = app; // for testing
 
 var config = {
-  appRoot: __dirname // required config
+  appRoot: __dirname,
+  swaggerSecurityHandlers: {
+    Bearer: auth.verifyToken
+  }
 };
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
@@ -15,9 +18,6 @@ SwaggerExpress.create(config, function(err, swaggerExpress) {
   // install middleware
   swaggerExpress.register(app);
 
-  swaggerExpress.runner.config.swagger.securityHandlers = { 
-      Bearer: auth.verifyToken
-  }
 
   var port = process.env.PORT || 10010;
   app.listen(port);

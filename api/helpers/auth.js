@@ -10,6 +10,7 @@ var issuer = 'jimmack.com.au';
 //endpoint is received
 exports.verifyToken = function (req, authOrSecDef, token, callback) {
     //these are the scopes/roles defined for the current endpoint
+    
     var currentScopes = req.swagger.operation["x-security-scopes"];
 
     function sendError() {
@@ -24,9 +25,10 @@ exports.verifyToken = function (req, authOrSecDef, token, callback) {
 
         jwt.verify(tokenString, sharedSecret, function (verificationError, decodedToken) {
             //check if the JWT was verified correctly
-            if (verificationError == null && Array.isArray(currentScopes) && decodedToken && decodedToken.role) {
+            //if (verificationError == null && Array.isArray(currentScopes) && decodedToken && decodedToken.role) {
+            if (verificationError == null && decodedToken) {
                 // check if the role is valid for this endpoint
-                var roleMatch = currentScopes.indexOf(decodedToken.role) !== -1;
+                // var roleMatch = currentScopes.indexOf(decodedToken.role) !== -1;
                 // check if the issuer matches
                 var issuerMatch = decodedToken.iss == issuer;
 
@@ -34,7 +36,8 @@ exports.verifyToken = function (req, authOrSecDef, token, callback) {
                 // token here if necessary, such as checking if
                 // the username belongs to an active user
 
-                if (roleMatch && issuerMatch) {
+                //if (roleMatch && issuerMatch) {
+                if (issuerMatch) {
                     //add the token to the request so that we
                     //can access it in the endpoint code if necessary
                     req.auth = decodedToken;

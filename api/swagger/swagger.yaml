@@ -24,9 +24,7 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-security:
-  - Bearer: []
-
+     
 paths:
   
 
@@ -70,6 +68,8 @@ paths:
     get:
       description: Returns a list of all active services
       operationId: getServiceCategories
+      security:
+        - Bearer: []
       responses:
         "200":
           description: Success
@@ -87,6 +87,8 @@ paths:
     get:
       description: Returns a service category by id
       operationId: getServiceCategory
+      security:
+        - Bearer: []
       parameters:
         - in: path
           name: id
@@ -107,6 +109,8 @@ paths:
     get:
       description: Returns templates of a specific service category
       operationId: getServiceCategoryTemplates
+      security:
+        - Bearer: []
       parameters:
         - in: path
           name: id
@@ -127,6 +131,8 @@ paths:
     get:
       description: Returns services of a specific service category
       operationId: getServiceCategoryServices
+      security:
+        - Bearer: []
       parameters:
         - in: path
           name: id
@@ -147,6 +153,8 @@ paths:
     get:
       description: Returns all services templates
       operationId: getServiceTemplates
+      security:
+        - Bearer: []
       responses:
         "200":
           description: Success
@@ -161,6 +169,8 @@ paths:
     get:
       description: Returns specific service template
       operationId: getServiceTemplate
+      security:
+        - Bearer: []
       parameters:
         - in: path
           name: id
@@ -181,6 +191,8 @@ paths:
     get:
       description: Returns a list of services of a specific service template
       operationId: getServiceTemplateServices
+      security:
+        - Bearer: []
       parameters:
         - in: path
           name: id
@@ -201,6 +213,8 @@ paths:
     get:
       description: Returns a list of all services
       operationId: getServices
+      security:
+        - Bearer: []
       responses:
         "200":
           description: Success
@@ -215,6 +229,8 @@ paths:
     get:
       description: Returns a sepcific service
       operationId: getService
+      security:
+        - Bearer: []
       parameters:
         - in: path
           name: id
