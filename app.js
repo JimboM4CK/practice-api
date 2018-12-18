@@ -2,6 +2,7 @@
 
 var SwaggerExpress = require('swagger-express-mw');
 var app = require('express')();
+var cors = require('cors');
 var auth = require('./api/helpers/auth');
 module.exports = app; // for testing
 
@@ -11,6 +12,8 @@ var config = {
     Bearer: auth.verifyToken
   }
 };
+
+app.use(cors());
 
 SwaggerExpress.create(config, function(err, swaggerExpress) {
   if (err) { throw err; }
