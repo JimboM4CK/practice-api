@@ -15,7 +15,7 @@ function staffLogin(req, res) {
 
   let email = req.swagger.params.credentials.value.email;
 
-  var q = db.queryize.select('s.*')
+  var q = db.queryize.select('*')
   .from('staff', 's')
   .join('`company`', {alias: 'c', on: 's.CompanyID = c.CompanyID'})
   .join('`group`', {alias: 'g', on: 'c.GroupID = g.GroupID'})
@@ -47,7 +47,9 @@ function staffLogin(req, res) {
         StaffID: data.StaffID,
         CompanyID: data.CompanyID,
         GroupID: data.GroupID,
-        StaffRoleID: data.StaffRoleID
+        StaffRoleID: data.StaffRoleID,
+        ShareClients: data.ShareClients,
+        GroupBasedServices: data.GroupBasedServices
       }
       let tokenString = auth.issueToken(userDetails, 'admin');
       let response = {token: tokenString}

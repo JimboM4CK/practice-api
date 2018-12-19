@@ -1,8 +1,7 @@
 'use strict';
-
 //var util = require('util');
 var db = require('../../config/db');
-
+var misc =  require('../helpers/misc');
 module.exports = {
   getServices: getServices,
   getService: getService,
@@ -15,71 +14,69 @@ module.exports = {
   getServiceTemplateServices: getServiceTemplateServices
 };
 
-
 // services
 function getServices(req, res) {
+  
   var q = db.queryize.select('s.*')
   .from('service', 's')
   .where(`s.Active = 1`)
-  .compile();
-
+  q = misc.compileQueryJWT(req, q, 's');
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
 }
-
 // services/:id
 function getService(req, res) {
+  
   var q = db.queryize.select('s.*')
   .from('service', 's')
   .where(`s.ServiceID = ${req.swagger.params.id.value}`)
-  .compile();
-
+  q = misc.compileQueryJWT(req, q, 's');
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
 }
-
 // services/categories
+
 function getServiceCategories(req, res) {
   var q = db.queryize.select('sc.*')
   .from('service_category', 'sc')
-  .where(`sc.Active = 1`)
-  .compile();
+  .where(`sc.Active = 1`);
+  q = misc.compileQueryJWT(req, q, 'sc');
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
 }
-
 // services/categories/:id/
 function getServiceCategory(req, res) {
+  
   var q = db.queryize.select('sc.*')
   .from('service_category', 'sc')
-  .where(`sc.ServiceCategoryID = ${req.swagger.params.id.value}`)
-  .compile();
+  .where(`sc.ServiceCategoryID = ${req.swagger.params.id.value}`);
+  q = misc.compileQueryJWT(req, q, 'sc');
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
 }
-
 
 // services/categories/:id/templates
 function getServiceCategoryTemplates(req, res) {
+  
   var q = db.queryize.select('st.*')
   .from('service_template', 'st')
   .join('service_category', {alias: 'sc', on: 'st.ServiceCategoryID = sc.ServiceCategoryID'})
   .where(`sc.ServiceCategoryID = ${req.swagger.params.id.value}`)
   .where(`sc.Active = 1`)
-  .where(`st.Active = 1`)
-  .compile();
+  .where(`st.Active = 1`);
+  q = misc.compileQueryJWT(req, q, 'sc');
 
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
@@ -88,17 +85,17 @@ function getServiceCategoryTemplates(req, res) {
   });
 }
 
-
 // services/categories/:id/services
 function getServiceCategoryServices(req, res) {
+  
   var q = db.queryize.select('s.*')
   .from('service', 's')
   .join('service_template', {alias: 'st', on: 's.ServiceTemplateID = st.ServiceTemplateID'})
   .join('service_category', {alias: 'sc', on: 'st.ServiceCategoryID = sc.ServiceCategoryID'})
   .where(`sc.ServiceCategoryID = ${req.swagger.params.id.value}`)
   .where(`sc.Active = 1`)
-  .where(`st.Active = 1`)
-  .compile();
+  .where(`st.Active = 1`);
+  q = misc.compileQueryJWT(req, q, 'sc');
 
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
@@ -107,14 +104,12 @@ function getServiceCategoryServices(req, res) {
   });
 }
 
-
 // services/templates
-function getServiceTemplates(req, res) {
+function getServiceTemplates(req, res) {  
   var q = db.queryize.select('st.*')
   .from('service_template', 'st')
-  .where({'st.Active':'1'})
-  .compile();
-
+  .where('st.Active = 1');
+  q = misc.compileQueryJWT(req, q, 'st');
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
     else if(!rows[0]){ res.end(); }
@@ -124,12 +119,12 @@ function getServiceTemplates(req, res) {
 
 // services/templates/:id
 function getServiceTemplate(req, res) {
+  
   var q = db.queryize.select('st.*')
   .from('service_template', 'st')
   .where(`st.ServiceTemplateID = ${req.swagger.params.id.value}`)
-  .where(`st.Active=1`)
-  .compile();
-
+  .where(`st.Active=1`);
+  q = misc.compileQueryJWT(req, q, 'st');
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
     else if(!rows[0]){ res.end(); }
@@ -139,12 +134,13 @@ function getServiceTemplate(req, res) {
 
 // services/templates/:id/services
 function getServiceTemplateServices(req, res) {
+  
   var q = db.queryize.select('s.*')
   .from('service', 's')
   .join('service_template', {alias: 'st', on: 's.ServiceTemplateID = st.ServiceTemplateID'})
   .where(`s.ServiceTemplateID = ${req.swagger.params.id.value}`)
-  .where(`st.Active=1`)
-  .compile();
+  .where(`st.Active=1`);
+  q = misc.compileQueryJWT(req, q, 'st');
 
   db.query(q, (error, rows)=>{
     if(error){ res.end(error); }
@@ -152,4 +148,3 @@ function getServiceTemplateServices(req, res) {
     else { res.json(rows); }
   });
 }
-
