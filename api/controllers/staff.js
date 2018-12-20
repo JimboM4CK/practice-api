@@ -26,7 +26,7 @@ function staffLogin(req, res) {
   .compile();
   db.query(q, (error, rows)=>{
     if(error){ 
-      res.end(error); 
+      res.json(error); 
     } else if(!rows[0]){
       res.status(403).json({message: "Error: Credentials incorrect"});
     } else {

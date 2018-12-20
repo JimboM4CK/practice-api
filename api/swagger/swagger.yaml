@@ -57,10 +57,52 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/GenericErrorResponse"
-    # post: // insert
-    # patch: // update
-    # delete: // delete
 
+  /groups/{id}:
+    x-swagger-router-controller: groups
+    get:
+      description: Returns a specific group's information.
+      operationId: getGroup
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the group to get.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /groups/{id}/companies:
+    x-swagger-router-controller: groups
+    get:
+      description: Returns all companies in a specific group.
+      operationId: getGroupCompanies
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the group to get.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
 
 
   /services/categories:
@@ -82,6 +124,7 @@ paths:
     # post: // insert
     # patch: // update
     # delete: // delete
+
   /services/categories/{id}:
     x-swagger-router-controller: services
     get:
@@ -104,6 +147,7 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/GenericErrorResponse"
+
   /services/categories/{id}/templates:
     x-swagger-router-controller: services
     get:

@@ -22,7 +22,7 @@ function getServices(req, res) {
   .where(`s.Active = 1`)
   q = misc.compileQueryJWT(req, q, 's');
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -35,7 +35,7 @@ function getService(req, res) {
   .where(`s.ServiceID = ${req.swagger.params.id.value}`)
   q = misc.compileQueryJWT(req, q, 's');
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -61,7 +61,7 @@ function getServiceCategory(req, res) {
   .where(`sc.ServiceCategoryID = ${req.swagger.params.id.value}`);
   q = misc.compileQueryJWT(req, q, 'sc');
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -79,7 +79,7 @@ function getServiceCategoryTemplates(req, res) {
   q = misc.compileQueryJWT(req, q, 'sc');
 
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -98,7 +98,7 @@ function getServiceCategoryServices(req, res) {
   q = misc.compileQueryJWT(req, q, 'sc');
 
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -111,7 +111,7 @@ function getServiceTemplates(req, res) {
   .where('st.Active = 1');
   q = misc.compileQueryJWT(req, q, 'st');
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -126,7 +126,7 @@ function getServiceTemplate(req, res) {
   .where(`st.Active=1`);
   q = misc.compileQueryJWT(req, q, 'st');
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
@@ -143,7 +143,7 @@ function getServiceTemplateServices(req, res) {
   q = misc.compileQueryJWT(req, q, 'st');
 
   db.query(q, (error, rows)=>{
-    if(error){ res.end(error); }
+    if(error){ res.json(error); }
     else if(!rows[0]){ res.end(); }
     else { res.json(rows); }
   });
