@@ -3,18 +3,18 @@
 var db = require('../../config/db');
 var auth = require('../helpers/auth');
 var pwdtools = require('../helpers/password');
+var misc = require('../helpers/misc');
 
 module.exports = {
   staffLogin: staffLogin,
-  staffAdd: staffAdd,
+  staffAdd: staffAdd
 };
 
 
 // staff/login
-function staffLogin(req, res) {
+async function staffLogin(req, res) {
 
   let email = req.swagger.params.credentials.value.email;
-
   var q = db.queryize.select('*')
   .from('staff', 's')
   .join('`company`', {alias: 'c', on: 's.CompanyID = c.CompanyID'})
@@ -24,38 +24,78 @@ function staffLogin(req, res) {
   .where(`c.Active = 1`)
   .where(`g.Active = 1`)
   .compile();
-  db.query(q, (error, rows)=>{
-    if(error){ 
-      res.json(error); 
-    } else if(!rows[0]){
-      res.status(403).json({message: "Error: Credentials incorrect"});
-    } else {
+  try {
+    var userInfo = await new Promise((resolve, reject) => {
+      db.query(q, (error, rows)=>{
+        if(error){ 
+          reject(error); 
+        } else if(!rows[0]){
+          reject("Error: Credentials incorrect");
+        } else {
+          let data = rows[0];
+          let password = req.swagger.params.credentials.value.password;
+          let salt = data.PasswordSalt;
+          let hash = pwdtools.generateHash(password, salt);
+          if(data.PasswordHash !== hash){
+            reject("Error: Credentials incorrect");
+          }
 
-      let data = rows[0];
-      let password = req.swagger.params.credentials.value.password;
-      let salt = data.PasswordSalt;
-      let hash = pwdtools.generateHash(password, salt);
+          let result = {
+            Email: data.Email,
+            FirstName: data.FirstName,
+            LastName: data.LastName,
+            StaffID: data.StaffID,
+            CompanyID: data.CompanyID,
+            GroupID: data.GroupID,
+            StaffRoleID: data.StaffRoleID,
+            ShareClients: data.ShareClients,
+            GroupBasedServices: data.GroupBasedServices
+          }
+          resolve(result);
+        }
+      });
+    });
+    var q = db.queryize.select('*')
+    .from('company', 'c')
+    .where(`c.CompanyID = ${userInfo.CompanyID}`)
+    .compile();
+    var companyInfo = await new Promise((resolve, reject) => {
+      db.query(q, (error, rows)=>{
+        if(error){ 
+          reject(error); 
+        } else if(!rows[0]){
+          reject(`Error: Could not find company with ID: ${userInfo.CompanyID}`);
+        } else {
+          resolve(rows[0]);
+        }
+      });
+    });
     
-      if(data.PasswordHash !== hash){
-        return res.status(403).json({message: "Error: Credentials incorrect"});
-      }
 
-      let userDetails = {
-        Email: data.Email,
-        FirstName: data.FirstName,
-        LastName: data.LastName,
-        StaffID: data.StaffID,
-        CompanyID: data.CompanyID,
-        GroupID: data.GroupID,
-        StaffRoleID: data.StaffRoleID,
-        ShareClients: data.ShareClients,
-        GroupBasedServices: data.GroupBasedServices
-      }
-      let tokenString = auth.issueToken(userDetails, 'admin');
-      let response = {token: tokenString}
-      res.json(response);
-    }
-  });
+    var q = db.queryize.select('*')
+    .from('group', 'g')
+    .where(`g.GroupID = ${userInfo.GroupID}`)
+    .compile();
+
+    var groupInfo = await new Promise((resolve, reject) => {
+      db.query(q, (error, rows)=>{
+        if(error){ 
+          reject(error); 
+        } else if(!rows[0]){
+          reject(`Error: Could not find group with ID: ${userInfo.GroupID}`);
+        } else {
+          resolve(rows[0]);
+        }
+      });
+    });
+    
+    let tokenString = auth.issueToken(userInfo, 'admin');
+    let response = {token: tokenString, userInfo: userInfo, companyInfo: companyInfo, groupInfo: groupInfo}
+    res.json(response);
+  } catch(err){
+    return res.json({message:err}); 
+  }
+  
 }
 
 

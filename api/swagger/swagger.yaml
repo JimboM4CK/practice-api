@@ -58,6 +58,45 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
+
+  /diary/staff:
+    x-swagger-router-controller: diary
+    get:
+      description: Returns list of staff members on diary
+      operationId: diaryStaff
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /diary/entries:
+    x-swagger-router-controller: diary
+    get:
+      description: Returns list of diary entries for a specific day
+      operationId: diaryEntries
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: date
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
   /groups/{id}:
     x-swagger-router-controller: groups
     get:
