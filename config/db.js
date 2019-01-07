@@ -9,7 +9,8 @@ const db = {
     host     : 'jmdb.cwcxibundeox.ap-southeast-2.rds.amazonaws.com',
     user     : 'root',
     password : 'JKaws123!',
-    database : 'practice'
+    database : 'practice',
+    timezone : 'UTC'
   },
   db_prefix: 'practice_',
   pool: false,
@@ -25,8 +26,9 @@ const db = {
   },
   query: function(q, callback){
     const pool = this.getPool();
-    pool.query(q.query, q.data, (error, results, fields) => {
-      callback(error, results);
+    let query = q.query ? q.query : q.toString();
+    pool.query(query, (error, rows) => {
+      callback(error, rows);
     });
   }
 };

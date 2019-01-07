@@ -55,8 +55,9 @@ async function staffLogin(req, res) {
         }
       });
     });
-    var q = db.queryize.select('*')
+    var q = db.queryize.select(['c.*', 't.Title as Timezone'])
     .from('company', 'c')
+    .join('timezone', {alias: 't', on: 'c.TimezoneID = t.TimezoneID'})
     .where(`c.CompanyID = ${userInfo.CompanyID}`)
     .compile();
     var companyInfo = await new Promise((resolve, reject) => {
@@ -88,6 +89,7 @@ async function staffLogin(req, res) {
         }
       });
     });
+    userInfo.Timezone = companyInfo.Timezone;
     
     let tokenString = auth.issueToken(userInfo, 'admin');
     let response = {token: tokenString, userInfo: userInfo, companyInfo: companyInfo, groupInfo: groupInfo}

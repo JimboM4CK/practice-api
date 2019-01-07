@@ -97,6 +97,78 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
+  
+  /diary/entries/add:
+    x-swagger-router-controller: diary
+    post:
+      description: Adds a diary entry
+      operationId: diaryEntriesAdd
+      security: 
+        - Bearer: []
+      parameters:
+        - in: body
+          name: entryData
+          description: Type, Staff Member, Start and End times.
+          schema:
+            type: object
+            required:
+              - type
+              - startTime
+              - endTime
+              - staffId
+            properties:
+              type:
+                type: string
+              staffId:
+                type: integer
+              startTime:
+                type: string
+              endTime:
+                type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /diary/entries/remove:
+    x-swagger-router-controller: diary
+    post:
+      description: Removes an entry from the diary
+      operationId: diaryEntriesRemove
+      security: 
+        - Bearer: []
+      parameters:
+        - in: body
+          name: entryData
+          description: entryId, type, start time, end time
+          schema:
+            type: object
+            properties:
+              entryId:
+                type: string
+              staffId:
+                type: integer
+              type:
+                type: string
+              startTime:
+                type: string
+              endTime:
+                type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
   /groups/{id}:
     x-swagger-router-controller: groups
     get:
