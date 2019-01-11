@@ -98,6 +98,28 @@ paths:
             $ref: "#/definitions/GenericErrorResponse"
 
   
+  /diary/staff-roster:
+    x-swagger-router-controller: diary
+    get:
+      description: Returns list of staff rosters for a specific day
+      operationId: diaryStaffRoster
+      security:
+        - Bearer: []
+      parameters:
+        - in: query
+          name: date
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  
   /diary/entries/add:
     x-swagger-router-controller: diary
     post:

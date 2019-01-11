@@ -6,6 +6,7 @@ var date =  require('../helpers/date');
 module.exports = {
   diaryStaff: diaryStaff,
   diaryEntries: diaryEntries,
+  diaryStaffRoster: diaryStaffRoster,
   diaryEntriesAdd: diaryEntriesAdd,
   diaryEntriesRemove: diaryEntriesRemove
 };
@@ -32,35 +33,39 @@ function diaryStaff(req, res) {
 // diary/entries
 async function diaryEntries(req, res) {
   let userData = misc.getUserDataJWT(req);
-  let q = db.queryize.select([
-    'e.EntryID', 
-    'e.StaffID', 
-    'e.StartTime', 
-    'e.EndTime',  
-    'e.Title', 
-    'e.Description', 
-    'e.ServiceTemplateID', 
-    'e.RoomID', 
-    'e.TreatmentLocationID', 
-    'e.MaxAttendees', 
-    'et.Title as EntryType'
-  ])
-  .from('entry', 'e')
-  .join('entry_type', {alias: 'et', on: 'e.EntryTypeID = et.EntryTypeID'})
-  .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'`)
-  .where(`e.CompanyID = ${userData.CompanyID}`)
-  .compile();
+  var q;
 
   try {
     let entries = await new Promise((resolve, reject) => {
+      q = db.queryize.select([
+        'e.EntryID', 
+        'e.StaffID', 
+        'e.StartTime', 
+        'e.EndTime',  
+        'e.Title', 
+        'e.Description', 
+        'e.ServiceTemplateID', 
+        'e.RoomID', 
+        'e.TreatmentLocationID', 
+        'e.MaxAttendees',
+        'et.Title as EntryType'
+      ])
+      .from('entry', 'e')
+      .join('entry_type', {alias: 'et', on: 'e.EntryTypeID = et.EntryTypeID'})
+      .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'`)
+      .where(`e.EntryTypeID IN (1,2,3)`)
+      .where(`e.CompanyID = ${userData.CompanyID}`)
+      .compile();
       db.query(q, (error, rows)=>{
         if(error) reject(error);
         resolve(rows);
       });
     });
 
+
+
     let result = await Promise.all(entries.map(async (row) => {
-      let q = db.queryize.select(['ed.*','c.FirstName', 'c.PreferredName', 'c.LastName'])
+      q = db.queryize.select(['ed.*','c.FirstName', 'c.PreferredName', 'c.LastName'])
       .from('entry_detail', 'ed')
       .join('client', {alias: 'c', on: 'ed.ClientID = c.ClientID'})
       .where(`ed.EntryID = '${row.EntryID}'`)
@@ -76,6 +81,62 @@ async function diaryEntries(req, res) {
     }));
 
     return res.json(result);
+  } catch(err) {
+    return res.json({error:err});
+  }
+}
+
+
+// diary/staff-roster
+async function diaryStaffRoster(req, res) {
+  let userData = misc.getUserDataJWT(req);
+  var q;
+  try {
+    let reservations = await new Promise((resolve, reject) => {
+      q = db.queryize.select([
+        'e.EntryID', 
+        'e.StaffID', 
+        'MAX(e.StartTime) as StartTime', 
+        'MAX(e.EndTime) as EndTime',
+        'er.Title as Recurrence',
+        `'Roster' as EntryType`
+      ])
+      .from('entry', 'e')
+      .leftJoin('entry_recurrence', {alias: 'er', on: 'e.EntryRecurrenceID = er.EntryRecurrenceID'})
+      .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') <= '${req.swagger.params.date.value}'`)
+      .where(`DAYOFWEEK(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}')) = DAYOFWEEK('${req.swagger.params.date.value}')`)
+      .where(`(
+        (
+          e.EntryRecurrenceID IS NULL 
+          AND DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'
+        ) OR (
+          e.EntryRecurrenceID IS NOT NULL 
+          AND DATEDIFF(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '${req.swagger.params.date.value}') % er.IntervalDays = 0
+        )
+      )`)
+      .where(`e.EntryTypeID = 4`)
+      .where(`e.CompanyID = ${userData.CompanyID}`)
+      .groupBy('e.EntryID', 'e.StaffID', 'er.Title')
+      .compile();
+
+      db.query(q, (error, rows)=>{
+        if(error) reject(error);
+        let dateSplit = req.swagger.params.date.value.split('-');
+        rows.forEach((row) => {
+          //Change date to current date.
+          //row.StartTime = new Date(row.StartTime);
+          //row.EndTime = new Date(row.EndTime);
+          row.StartTime.setYear(dateSplit[0]);
+          row.StartTime.setMonth(dateSplit[1]-1);
+          row.StartTime.setDate(dateSplit[2]);
+          row.EndTime.setYear(dateSplit[0]);
+          row.EndTime.setMonth(dateSplit[1]-1);
+          row.EndTime.setDate(dateSplit[2]);
+        });
+        resolve(rows);
+      });
+    });
+    return res.json(reservations);
   } catch(err) {
     return res.json({error:err});
   }
@@ -173,8 +234,6 @@ async function diaryEntriesRemoveReservation(req){
   let typeId = 2; //reservation
 
   try {
-    
-    
     let q = db.queryize.select([
       'e.EntryID',
       'e.StartTime', 
@@ -192,7 +251,6 @@ async function diaryEntriesRemoveReservation(req){
     .where(`e.EntryTypeID = ${typeId}`)
     .where(`e.CompanyID = ${userData.CompanyID}`)
     .compile();
-
     let reservations = await new Promise((resolve, reject) => {
       db.query(q, (error, rows)=>{
         if(error) reject(error);
@@ -202,39 +260,41 @@ async function diaryEntriesRemoveReservation(req){
           createEntries: []
         }
         rows.forEach(row => {
-          let tmpStartTime = new Date(row.StartTime);
-          let tmpEndTime = new Date(row.EndTime);
-          if(tmpStartTime > startTime && tmpEndTime < endTime){
+          let existingStartTime = new Date(row.StartTime);
+          let existingEndTime = new Date(row.EndTime);
+          if(existingStartTime >= startTime && existingEndTime <= endTime){
             result.deleteEntryIds.push(row.EntryID);
-          } else if(startTime > tmpStartTime && endTime < tmpEndTime) {
+          } else if(startTime > existingStartTime && endTime < existingEndTime) {
             result.updateEntries.push({
               entryId: row.EntryID,
-              startTime: tmpStartTime,
+              startTime: existingStartTime,
               endTime: startTime
             });
             result.createEntries.push({
               staffId: data.staffId,
               typeId: typeId,
               startTime: endTime,
-              endTime: tmpEndTime
+              endTime: existingEndTime
             });
-          } else if(startTime > tmpStartTime) {
+          } else if(startTime > existingStartTime) {
             result.updateEntries.push({
               entryId: row.EntryID,
-              startTime: tmpStartTime,
+              startTime: existingStartTime,
               endTime: startTime
             });
-          } else if(endTime < tmpEndTime){
+          } else if(endTime < existingEndTime){
             result.updateEntries.push({
               entryId: row.EntryID,
               startTime: endTime,
-              endTime: tmpEndTime
+              endTime: existingEndTime
             });
           }
         });
         resolve(result);
       });
     });
+
+    console.log(reservations);
 
     if(reservations.deleteEntryIds.length){
       await new Promise((resolve, reject) => {
