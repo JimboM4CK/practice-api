@@ -1,4 +1,10 @@
 var jwt = require('jsonwebtoken');
+module.exports = {
+    decodeJWT: decodeJWT,
+    getUserDataJWT: getUserDataJWT,
+    compileQueryJWT: compileQueryJWT,
+    compileClientQueryJWT: compileClientQueryJWT
+}
 
 function decodeJWT(req){
     let token = req.get('Authorization');
@@ -19,9 +25,14 @@ function compileQueryJWT(req, q, alias){
     }
     return q.compile();
 }
-  
-module.exports = {
-    decodeJWT: decodeJWT,
-    getUserDataJWT: getUserDataJWT,
-    compileQueryJWT: compileQueryJWT
+
+function compileClientQueryJWT(req, q, alias){
+    let userData = getUserDataJWT(req);
+    if(userData.ShareClients){
+        q.where(`${alias}.GroupID = '${userData.GroupID}'`);
+    } else {
+        q.where(`${alias}.CompanyID = '${userData.CompanyID}'`);
+    }
+    return q.compile();
 }
+ 

@@ -423,6 +423,52 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/GenericErrorResponse"
+  /clients/search/{query}:
+    x-swagger-router-controller: clients
+    get:
+      description: Returns a clients who match search string
+      operationId: searchClients
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: query
+          description: Search query.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /clients/{id}/episodes:
+    x-swagger-router-controller: clients
+    get:
+      description: Returns a list of episodes belonging to a client
+      operationId: clientEpisodes
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          description: Client ID
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
   /swagger:
     x-swagger-pipe: swagger_raw
 definitions:
