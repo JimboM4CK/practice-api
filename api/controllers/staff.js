@@ -55,9 +55,9 @@ async function staffLogin(req, res) {
         }
       });
     });
-    var q = db.queryize.select(['c.*', 't.Title as Timezone'])
+    var q = db.queryize.select('c.*')
     .from('company', 'c')
-    .join('timezone', {alias: 't', on: 'c.TimezoneID = t.TimezoneID'})
+    .join('locale', {alias: 'l', on: 'c.LocaleID = l.LocaleID'})
     .where(`c.CompanyID = ${userInfo.CompanyID}`)
     .compile();
     var companyInfo = await new Promise((resolve, reject) => {
@@ -72,6 +72,22 @@ async function staffLogin(req, res) {
       });
     });
     
+    var q = db.queryize.select('l.*')
+    .from('company', 'c')
+    .join('locale', {alias: 'l', on: 'c.LocaleID = l.LocaleID'})
+    .where(`c.CompanyID = ${userInfo.CompanyID}`)
+    .compile();
+    var localeInfo = await new Promise((resolve, reject) => {
+      db.query(q, (error, rows)=>{
+        if(error){ 
+          reject(error); 
+        } else if(!rows[0]){
+          reject(`Error: Could not find company with ID: ${userInfo.CompanyID}`);
+        } else {
+          resolve(rows[0]);
+        }
+      });
+    });
 
     var q = db.queryize.select('*')
     .from('group', 'g')
@@ -89,8 +105,8 @@ async function staffLogin(req, res) {
         }
       });
     });
-    userInfo.Timezone = companyInfo.Timezone;
-    
+    companyInfo.Locale = localeInfo;
+    userInfo.Locale = localeInfo;
     let tokenString = auth.issueToken(userInfo, 'admin');
     let response = {token: tokenString, userInfo: userInfo, companyInfo: companyInfo, groupInfo: groupInfo}
     res.json(response);

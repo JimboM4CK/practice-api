@@ -52,7 +52,7 @@ async function diaryEntries(req, res) {
       ])
       .from('entry', 'e')
       .join('entry_type', {alias: 'et', on: 'e.EntryTypeID = et.EntryTypeID'})
-      .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'`)
+      .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'`)
       .where(`e.EntryTypeID IN (1,2,3)`)
       .where(`e.CompanyID = ${userData.CompanyID}`)
       .compile();
@@ -90,6 +90,7 @@ async function diaryEntries(req, res) {
 // diary/staff-roster
 async function diaryStaffRoster(req, res) {
   let userData = misc.getUserDataJWT(req);
+  
   var q;
   try {
     let reservations = await new Promise((resolve, reject) => {
@@ -103,15 +104,15 @@ async function diaryStaffRoster(req, res) {
       ])
       .from('entry', 'e')
       .leftJoin('entry_recurrence', {alias: 'er', on: 'e.EntryRecurrenceID = er.EntryRecurrenceID'})
-      .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') <= '${req.swagger.params.date.value}'`)
-      .where(`DAYOFWEEK(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}')) = DAYOFWEEK('${req.swagger.params.date.value}')`)
+      .where(`DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}'), '%Y-%m-%d') <= '${req.swagger.params.date.value}'`)
+      .where(`DAYOFWEEK(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}')) = DAYOFWEEK('${req.swagger.params.date.value}')`)
       .where(`(
         (
           e.EntryRecurrenceID IS NULL 
-          AND DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'
+          AND DATE_FORMAT(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}'), '%Y-%m-%d') = '${req.swagger.params.date.value}'
         ) OR (
           e.EntryRecurrenceID IS NOT NULL 
-          AND DATEDIFF(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}'), '${req.swagger.params.date.value}') % er.IntervalDays = 0
+          AND DATEDIFF(CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}'), '${req.swagger.params.date.value}') % er.IntervalDays = 0
         )
       )`)
       .where(`e.EntryTypeID = 4`)
@@ -169,13 +170,13 @@ async function diaryEntriesAdd(req, res) {
     (
       '${date.getDateIso(startTime)}'
       BETWEEN 
-        CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}')
-        AND CONVERT_TZ(e.EndTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}')
+        CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}')
+        AND CONVERT_TZ(e.EndTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}')
     ) OR (
       '${date.getDateIso(endTime)}'
       BETWEEN 
-        CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}')
-        AND CONVERT_TZ(e.EndTime, '+00:00', '${date.getTimezoneOffset(userData.Timezone)}')
+        CONVERT_TZ(e.StartTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}')
+        AND CONVERT_TZ(e.EndTime, '+00:00', '${date.getTimezoneOffset(userData.Locale.Timezone)}')
     )
   )`)
   .where(`e.StaffID = ${req.swagger.params.entryData.value.staffId}`)
@@ -293,8 +294,6 @@ async function diaryEntriesRemoveReservation(req){
         resolve(result);
       });
     });
-
-    console.log(reservations);
 
     if(reservations.deleteEntryIds.length){
       await new Promise((resolve, reject) => {
