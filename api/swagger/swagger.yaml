@@ -1,12 +1,12 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Practice App
+  title: Review App
 # during dev, should point to your local machine
 host: localhost:10010
-# basePath prefixes all resource paths 
-basePath: /
-# 
+# basePath prefixes all resource paths
+basePath: /v1/
+#
 schemes:
   # tip: remove http to make production-grade
   - http
@@ -24,19 +24,17 @@ securityDefinitions:
     type: apiKey
     name: Authorization
     in: header
-     
-paths:
-  
 
-  /login:
-    x-swagger-router-controller: staff
+paths:
+  /User/Login:
+    x-swagger-router-controller: user
     post:
       description: Login user to access protected api endpoints
-      operationId: staffLogin
+      operationId: login
       security: [] #removes bearer security from endpoint
       parameters:
         - in: body
-          name: credentials
+          name: payload
           description: User's login email address and password.
           schema:
             type: object
@@ -58,14 +56,175 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
-
-  /diary/staff:
-    x-swagger-router-controller: diary
+  /User/Information:
+    x-swagger-router-controller: user
     get:
-      description: Returns list of staff members on diary
-      operationId: diaryStaff
+      description: Fetch information for current logged in user
+      operationId: information
       security:
         - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /User/ChangePassword:
+    x-swagger-router-controller: user
+    post:
+      description: Change users password
+      operationId: changePassword
+
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: body
+          name: payload
+          description: Old password and new password
+          schema:
+            type: object
+            required:
+              - oldPassword
+              - newPassword
+            properties:
+              oldPassword:
+                type: string
+              newPassword:
+                type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Configuration:
+    x-swagger-router-controller: common
+    get:
+      description: Fetch general configuration information
+      operationId: configuration
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Campaigns:
+    x-swagger-router-controller: campaigns
+    get:
+      description: Returns list of campaigns
+      operationId: getCampaigns
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Campaigns/{id}/Commence:
+    x-swagger-router-controller: campaigns
+    get:
+      description: Commences a campaign
+      operationId: commenceCampaign
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the campaign to fetch.
+          required: true
+          type: integer
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Campaigns/{id}:
+    x-swagger-router-controller: campaigns
+    get:
+      description: Returns a campaigns detailed information
+      operationId: getCampaignDetail
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the campaign to fetch.
+          required: true
+          type: integer
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Other/RecipientsFromFile:
+    x-swagger-router-controller: other
+    post:
+      description: Fetch list of recipients from uploaded csv
+      operationId: recipientsFromFile
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: body
+          name: payload
+          description: CSV file with name and email columns
+          schema:
+            type: object
+            required:
+              - file
+            properties:
+              file:
+                type: string
+                format: binary
       responses:
         "200":
           description: Success
@@ -97,7 +256,6 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
-  
   /diary/staff-roster:
     x-swagger-router-controller: diary
     get:
@@ -119,13 +277,12 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
-  
   /diary/entries/add:
     x-swagger-router-controller: diary
     post:
       description: Adds a diary entry
       operationId: diaryEntriesAdd
-      security: 
+      security:
         - Bearer: []
       parameters:
         - in: body
@@ -162,7 +319,7 @@ paths:
     post:
       description: Removes an entry from the diary
       operationId: diaryEntriesRemove
-      security: 
+      security:
         - Bearer: []
       parameters:
         - in: body
@@ -236,7 +393,6 @@ paths:
           description: Error
           schema:
             $ref: "#/definitions/GenericErrorResponse"
-
 
   /services/categories:
     x-swagger-router-controller: services
@@ -324,7 +480,7 @@ paths:
         default:
           description: Error
           schema:
-            $ref: "#/definitions/GenericErrorResponse"            
+            $ref: "#/definitions/GenericErrorResponse"
   /services/templates:
     x-swagger-router-controller: services
     get:

@@ -1,38 +1,31 @@
-var jwt = require('jsonwebtoken');
-module.exports = {
-    decodeJWT: decodeJWT,
-    getUserDataJWT: getUserDataJWT,
-    compileQueryJWT: compileQueryJWT,
-    compileClientQueryJWT: compileClientQueryJWT
-}
+import JWT from "jsonwebtoken";
 
-function decodeJWT(req){
-    let token = req.get('Authorization');
-    var tokenString = token.split(' ')[1];
-    return jwt.decode(tokenString);
-}
+export default {
+  decodeJWT: function(req) {
+    let token = req.get("Authorization");
+    var tokenString = token.split(" ")[1];
+    return JWT.decode(tokenString);
+  },
 
-function getUserDataJWT(req){
-    return decodeJWT(req).user
-}
-
-function compileQueryJWT(req, q, alias){
+  getUserDataJWT: function(req) {
+    return decodeJWT(req).user;
+  },
+  compileQueryJWT: function(req, q, alias) {
     let userData = getUserDataJWT(req);
-    if(userData.GroupBasedServices){
-        q.where(`${alias}.GroupID = '${userData.GroupID}'`);
+    if (userData.GroupBasedServices) {
+      q.where(`${alias}.GroupID = '${userData.GroupID}'`);
     } else {
-        q.where(`${alias}.CompanyID = '${userData.CompanyID}'`);
+      q.where(`${alias}.CompanyID = '${userData.CompanyID}'`);
     }
     return q.compile();
-}
-
-function compileClientQueryJWT(req, q, alias){
+  },
+  compileClientQueryJWT: function(req, q, alias) {
     let userData = getUserDataJWT(req);
-    if(userData.ShareClients){
-        q.where(`${alias}.GroupID = '${userData.GroupID}'`);
+    if (userData.ShareClients) {
+      q.where(`${alias}.GroupID = '${userData.GroupID}'`);
     } else {
-        q.where(`${alias}.CompanyID = '${userData.CompanyID}'`);
+      q.where(`${alias}.CompanyID = '${userData.CompanyID}'`);
     }
     return q.compile();
-}
- 
+  }
+};
