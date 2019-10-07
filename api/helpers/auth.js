@@ -2,7 +2,16 @@ import jwt from "jsonwebtoken";
 let sharedSecret = "shhhhh, secrets...";
 let issuer = "jimmack.com.au";
 
+let facebookClientId = "2506959346053963";
+let facebookClientSecret = "1d85f17f8d02d299d8dd813784a954d1";
+
 module.exports = {
+  facebookCredentials: function() {
+    return {
+      clientId: facebookClientId,
+      clientSecret: facebookClientSecret
+    };
+  },
   verifyToken: function(req, authOrSecDef, token, callback) {
     //Here we setup the security checks for the endpoints
     //that need it (in our case, only /protected). This

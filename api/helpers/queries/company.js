@@ -36,5 +36,23 @@ module.exports = {
     } catch (error) {
       return Promise.reject(error);
     }
+  },
+  update: async function(companyId, fields) {
+    let keys = Object.keys(fields);
+    let set = [];
+    keys.forEach(key => {
+      set.push(`${key}='${fields[key]}'`);
+    });
+    var q = `
+    UPDATE company 
+    SET ${set.join(", ")}
+    WHERE id = ${companyId}
+    `;
+    try {
+      let res = await database.query(q);
+      return Promise.resolve(true);
+    } catch (error) {
+      return Promise.reject(error);
+    }
   }
 };

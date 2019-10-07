@@ -203,6 +203,37 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
+  /Company/UpdateFacebookToken:
+    x-swagger-router-controller: company
+    post:
+      description: Updates a currently logged in company's facebook token.
+      operationId: updateFacebookToken
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: body
+          name: payload
+          description: The payload with the token issued by facebook.
+          schema:
+            type: object
+            required:
+              - token
+            properties:
+              token:
+                type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
   /Other/RecipientsFromFile:
     x-swagger-router-controller: other
     post:

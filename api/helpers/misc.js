@@ -6,12 +6,11 @@ export default {
     var tokenString = token.split(" ")[1];
     return JWT.decode(tokenString);
   },
-
   getUserDataJWT: function(req) {
-    return decodeJWT(req).user;
+    return this.decodeJWT(req).config;
   },
   compileQueryJWT: function(req, q, alias) {
-    let userData = getUserDataJWT(req);
+    let userData = this.getUserDataJWT(req);
     if (userData.GroupBasedServices) {
       q.where(`${alias}.GroupID = '${userData.GroupID}'`);
     } else {
@@ -20,7 +19,7 @@ export default {
     return q.compile();
   },
   compileClientQueryJWT: function(req, q, alias) {
-    let userData = getUserDataJWT(req);
+    let userData = this.getUserDataJWT(req);
     if (userData.ShareClients) {
       q.where(`${alias}.GroupID = '${userData.GroupID}'`);
     } else {
