@@ -56,26 +56,6 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
-  /User/Information:
-    x-swagger-router-controller: user
-    get:
-      description: Fetch information for current logged in user
-      operationId: information
-      security:
-        - Bearer: []
-      x-security-scopes:
-        - company
-        - group
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/GenericSuccessResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/GenericErrorResponse"
-
   /User/ChangePassword:
     x-swagger-router-controller: user
     post:
@@ -101,6 +81,26 @@ paths:
                 type: string
               newPassword:
                 type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /User:
+    x-swagger-router-controller: user
+    get:
+      description: Fetch information for current logged in user
+      operationId: userInformation
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
       responses:
         "200":
           description: Success
@@ -203,11 +203,63 @@ paths:
           schema:
             $ref: "#/definitions/GenericErrorResponse"
 
-  /Company/UpdateFacebookToken:
+  /Company/Integration/{id}/AssociatedPages:
+    x-swagger-router-controller: company
+    get:
+      description: Retrieves a list of the integration's associated pages.
+      operationId: getIntegrationAssociatedPages
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the integration.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Company/Integration/{id}:
+    x-swagger-router-controller: company
+    delete:
+      description: Disables an integration.
+      operationId: disableIntegration
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the integration.
+          required: true
+          type: integer
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Company/Integration:
     x-swagger-router-controller: company
     post:
-      description: Updates a currently logged in company's facebook token.
-      operationId: updateFacebookToken
+      description: Initiates an integration.
+      operationId: initiateIntegration
       security:
         - Bearer: []
       x-security-scopes:
@@ -216,14 +268,74 @@ paths:
       parameters:
         - in: body
           name: payload
-          description: The payload with the token issued by facebook.
+          description: The payload with the integration details.
           schema:
             type: object
             required:
-              - token
+              - reviewTypeId
+              - userToken
             properties:
-              token:
+              reviewTypeId:
+                type: integer
+              userToken:
                 type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+    put:
+      description: Completes an integration.
+      operationId: completeIntegration
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: body
+          name: payload
+          description: Payload containing the page details.
+          schema:
+            type: object
+            required:
+              - companyIntegrationId
+              - pageId
+            properties:
+              companyIntegrationId:
+                type: integer
+              pageId:
+                type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            $ref: "#/definitions/GenericSuccessResponse"
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/GenericErrorResponse"
+
+  /Company/{id}:
+    x-swagger-router-controller: company
+    get:
+      description: Fetch information for a specific company
+      operationId: companyInformation
+      security:
+        - Bearer: []
+      x-security-scopes:
+        - company
+        - group
+      parameters:
+        - in: path
+          name: id
+          description: Numeric id of the company to fetch.
+          required: true
+          type: integer
       responses:
         "200":
           description: Success
@@ -256,119 +368,6 @@ paths:
               file:
                 type: string
                 format: binary
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/GenericSuccessResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/GenericErrorResponse"
-
-  /diary/entries:
-    x-swagger-router-controller: diary
-    get:
-      description: Returns list of diary entries for a specific day
-      operationId: diaryEntries
-      security:
-        - Bearer: []
-      parameters:
-        - in: query
-          name: date
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/GenericSuccessResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/GenericErrorResponse"
-
-  /diary/staff-roster:
-    x-swagger-router-controller: diary
-    get:
-      description: Returns list of staff rosters for a specific day
-      operationId: diaryStaffRoster
-      security:
-        - Bearer: []
-      parameters:
-        - in: query
-          name: date
-          type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/GenericSuccessResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/GenericErrorResponse"
-
-  /diary/entries/add:
-    x-swagger-router-controller: diary
-    post:
-      description: Adds a diary entry
-      operationId: diaryEntriesAdd
-      security:
-        - Bearer: []
-      parameters:
-        - in: body
-          name: entryData
-          description: Type, Staff Member, Start and End times.
-          schema:
-            type: object
-            required:
-              - type
-              - startTime
-              - endTime
-              - staffId
-            properties:
-              type:
-                type: string
-              staffId:
-                type: integer
-              startTime:
-                type: string
-              endTime:
-                type: string
-      responses:
-        "200":
-          description: Success
-          schema:
-            $ref: "#/definitions/GenericSuccessResponse"
-        default:
-          description: Error
-          schema:
-            $ref: "#/definitions/GenericErrorResponse"
-
-  /diary/entries/remove:
-    x-swagger-router-controller: diary
-    post:
-      description: Removes an entry from the diary
-      operationId: diaryEntriesRemove
-      security:
-        - Bearer: []
-      parameters:
-        - in: body
-          name: entryData
-          description: entryId, type, start time, end time
-          schema:
-            type: object
-            properties:
-              entryId:
-                type: string
-              staffId:
-                type: integer
-              type:
-                type: string
-              startTime:
-                type: string
-              endTime:
-                type: string
       responses:
         "200":
           description: Success

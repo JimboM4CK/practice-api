@@ -22,18 +22,13 @@ module.exports = {
   },
   companies: async function(payload) {
     var q = database.queryize
-      .select("c.id, c.title as companyName, c.locale_id as localeId")
+      .select("c.id as `key`, c.title as `value`")
       .from("company", "c")
       .join("`group`", { alias: "g", on: "c.group_id = g.id" })
       .where(`g.id = ${payload.groupId}`)
       .compile();
     try {
       let rows = await database.query(q);
-      rows = rows.map(row => {
-        let id = row.id;
-        delete row.id;
-        return { key: id, value: row };
-      });
       return Promise.resolve(rows);
     } catch (error) {
       return Promise.reject(error);

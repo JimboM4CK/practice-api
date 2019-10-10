@@ -26,5 +26,21 @@ export default {
       q.where(`${alias}.CompanyID = '${userData.CompanyID}'`);
     }
     return q.compile();
+  },
+  arrayKey: function(array, key, value) {
+    for (let i = 0; i < array.length; i++) {
+      if (array[i][key] === value) {
+        return i;
+      }
+    }
+    return false;
+  },
+  arrayKeyObject: function(array, key, value) {
+    let i = this.arrayKey(array, key, value);
+    if (i === false) {
+      return false;
+    } else {
+      return array[i];
+    }
   }
 };

@@ -29,8 +29,8 @@ module.exports = {
       return res.json({ error: error });
     }
   },
-  // User/Information
-  information: async function(req, res) {
+  // User
+  userInformation: async function(req, res) {
     try {
       let userInfo = await helpers.queries.user.info({
         userId: req.auth.sub
@@ -44,7 +44,7 @@ module.exports = {
           groupId: userInfo.groupId
         });
       } else {
-        let companyInfo = await helpers.queries.group.info({
+        let companyInfo = await helpers.queries.company.info({
           companyId: companyInfo.companyId
         });
         companies.push(companyInfo);
@@ -52,7 +52,7 @@ module.exports = {
       let response = {
         user: userInfo,
         companies: companies,
-        group: groupInfo
+        group: [groupInfo]
       };
       return res.json(response);
     } catch (error) {
