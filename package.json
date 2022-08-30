@@ -20,7 +20,7 @@
     "google-auth-library": "^5.4.0",
     "jsonwebtoken": "^8.4.0",
     "moment": "^2.23.0",
-    "moment-timezone": "^0.5.23",
+    "moment-timezone": "^0.5.35",
     "mysql": "^2.16.0",
     "queryize": "^2.1.0",
     "regenerator-runtime": "^0.13.2",
