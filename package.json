@@ -18,7 +18,7 @@
     "express": "^4.12.3",
     "fb": "^2.0.0",
     "google-auth-library": "^5.4.0",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "moment": "^2.23.0",
     "moment-timezone": "^0.5.23",
     "mysql": "^2.16.0",
